@@ -3,21 +3,12 @@
   "name": "Notion Capture",
   "version": "0.1.0",
   "description": "Save page content into Notion with form templates.",
-  "permissions": ["storage", "activeTab", "scripting", "tabs", "contextMenus"],
-  "host_permissions": ["https://api.notion.com/*", "<all_urls>"],
+  "permissions": ["storage", "activeTab"],
   "background": {
-    "service_worker": "src/background/index.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["src/content/index.js"],
-      "run_at": "document_idle"
-    }
-  ]
+  "options_page": "options.html"
 }
