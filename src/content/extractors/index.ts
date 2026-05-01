@@ -1,7 +1,14 @@
 import type { ExtractedPage } from '../../shared/types';
 import { extractGeneric } from './generic';
+import { extractYouTube } from './youtube';
+import { extractGitHub } from './github';
+import { extractTwitter } from './twitter';
 
 const registry: Record<string, (base: ExtractedPage) => ExtractedPage> = {};
+
+register(['youtube.com', 'youtu.be', 'm.youtube.com', 'www.youtube.com'], extractYouTube);
+register(['github.com'], extractGitHub);
+register(['twitter.com', 'x.com'], extractTwitter);
 
 function getHostname(): string {
   try {
