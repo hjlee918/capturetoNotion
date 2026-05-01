@@ -131,19 +131,8 @@ function App() {
     setSaveMessage('');
 
     try {
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      const tab = tabs[0];
-      if (!tab?.title) {
-        setSaveState('error');
-        setSaveMessage('No active tab found');
-        return;
-      }
-
       const response = await chrome.runtime.sendMessage({
-        type: 'CREATE_PAGE',
-        databaseId: selectedDb,
-        title: tab.title,
-        url: tab.url ?? '',
+        type: 'EXTRACT_AND_SAVE',
       });
 
       if (response?.ok) {
