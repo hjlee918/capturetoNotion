@@ -143,15 +143,17 @@ async function handleExtractAndSave(selectionText?: string): Promise<MessageResp
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'save-page',
-    title: 'Save page to Notion',
-    contexts: ['page'],
-  });
-  chrome.contextMenus.create({
-    id: 'save-selection',
-    title: 'Save selection to Notion',
-    contexts: ['selection'],
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'save-page',
+      title: 'Save page to Notion',
+      contexts: ['page'],
+    });
+    chrome.contextMenus.create({
+      id: 'save-selection',
+      title: 'Save selection to Notion',
+      contexts: ['selection'],
+    });
   });
 });
 
