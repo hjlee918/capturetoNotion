@@ -1,3 +1,5 @@
+import { getForms, getHistory, getSettings } from './storage';
+
 type ExtensionMessage = { type?: string };
 
 type MessageResponse = {
@@ -12,22 +14,13 @@ async function handleMessage(message: ExtensionMessage): Promise<MessageResponse
       return { ok: true, data: { accountEmail: 'connected@stub.local' } };
 
     case 'GET_FORMS':
-      return { ok: true, data: [] };
+      return { ok: true, data: await getForms() };
 
     case 'GET_HISTORY':
-      return { ok: true, data: [] };
+      return { ok: true, data: await getHistory() };
 
     case 'GET_SETTINGS':
-      return {
-        ok: true,
-        data: {
-          openNotionInDesktopApp: false,
-          showSaveButtonsOnWebsites: false,
-          rememberHighlights: false,
-          hideContextMenuOption: false,
-          embeddedPostFormat: 'callout'
-        }
-      };
+      return { ok: true, data: await getSettings() };
 
     default:
       return { ok: false, error: `Unhandled message type: ${message.type}` };
