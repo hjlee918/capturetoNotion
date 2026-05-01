@@ -142,43 +142,45 @@ async function handleExtractAndSave(selectionText?: string): Promise<MessageResp
   }
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
-      id: 'save-page',
-      title: 'Save page to Notion',
-      contexts: ['page'],
-    });
-    chrome.contextMenus.create({
-      id: 'save-selection',
-      title: 'Save selection to Notion',
-      contexts: ['selection'],
+if (chrome.contextMenus) {
+  chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.removeAll(() => {
+      chrome.contextMenus.create({
+        id: 'save-page',
+        title: 'Save page to Notion',
+        contexts: ['page'],
+      });
+      chrome.contextMenus.create({
+        id: 'save-selection',
+        title: 'Save selection to Notion',
+        contexts: ['selection'],
+      });
     });
   });
-});
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId !== 'save-page' && info.menuItemId !== 'save-selection') return;
+  chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    if (info.menuItemId !== 'save-page' && info.menuItemId !== 'save-selection') return;
 
-  const selectionText = info.menuItemId === 'save-selection' ? info.selectionText : undefined;
-  const result = await handleExtractAndSave(selectionText);
+    const selectionText = info.menuItemId === 'save-selection' ? info.selectionText : undefined;
+    const result = await handleExtractAndSave(selectionText);
 
-  if (result.ok) {
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-      title: 'Saved to Notion',
-      message: 'Page saved successfully.',
-    });
-  } else {
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-      title: 'Save failed',
-      message: result.error ?? 'Unknown error',
-    });
-  }
-});
+    if (result.ok) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        title: 'Saved to Notion',
+        message: 'Page saved successfully.',
+      });
+    } else {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        title: 'Save failed',
+        message: result.error ?? 'Unknown error',
+      });
+    }
+  });
+}
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   void handleMessage(message as ExtensionMessage)
