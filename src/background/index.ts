@@ -1,3 +1,4 @@
+import { connectNotion, clearToken, getStoredToken } from './notion/auth';
 import { getForms, getHistory, getSettings } from './storage';
 
 type ExtensionMessage = { type?: string };
@@ -11,7 +12,19 @@ type MessageResponse = {
 async function handleMessage(message: ExtensionMessage): Promise<MessageResponse> {
   switch (message.type) {
     case 'AUTH_CONNECT':
-      return { ok: true, data: { accountEmail: 'connected@stub.local' } };
+      try {
+        const token = await connectNotion();
+        return { ok: true, data: { workspaceName: token.workspace_name } };
+      } catch (err) {
+        return { ok: false, error: err instanceof Error ? err.message : String(err) };
+      }
+
+    case 'AUTH_DISCONNECT':
+      await clearToken();
+      return { ok: true };
+
+    case 'GET_TOKEN':
+      return { ok: true, data: await getStoredToken() };
 
     case 'GET_FORMS':
       return { ok: true, data: await getForms() };
