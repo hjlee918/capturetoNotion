@@ -3,7 +3,7 @@
   "name": "Notion Capture",
   "version": "0.1.0",
   "description": "Save page content into Notion with form templates.",
-  "permissions": ["storage", "activeTab", "identity"],
+  "permissions": ["storage", "activeTab", "identity", "notifications"],
   "host_permissions": ["https://api.notion.com/*"],
   "content_scripts": [
     {
