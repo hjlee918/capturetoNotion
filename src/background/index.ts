@@ -1,6 +1,7 @@
+import { saveToken, clearToken, getStoredToken } from './notion/auth';
 import { getForms, getHistory, getSettings } from './storage';
 
-type ExtensionMessage = { type?: string };
+type ExtensionMessage = { type?: string; token?: string };
 
 type MessageResponse = {
   ok: boolean;
@@ -10,8 +11,26 @@ type MessageResponse = {
 
 async function handleMessage(message: ExtensionMessage): Promise<MessageResponse> {
   switch (message.type) {
-    case 'AUTH_CONNECT':
-      return { ok: true, data: { accountEmail: 'connected@stub.local' } };
+    case 'AUTH_CONNECT': {
+      const token = message.token;
+      if (!token) {
+        return { ok: false, error: 'No token provided' };
+      }
+      try {
+        await saveToken(token);
+        const stored = await getStoredToken();
+        return { ok: true, data: stored };
+      } catch (err) {
+        return { ok: false, error: err instanceof Error ? err.message : String(err) };
+      }
+    }
+
+    case 'AUTH_DISCONNECT':
+      await clearToken();
+      return { ok: true };
+
+    case 'GET_TOKEN':
+      return { ok: true, data: await getStoredToken() };
 
     case 'GET_FORMS':
       return { ok: true, data: await getForms() };
