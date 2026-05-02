@@ -136,8 +136,10 @@ async function handleExtractAndSave(selectionText?: string): Promise<MessageResp
 
   try {
     const page = await createPage({ databaseId, extracted });
+    console.log('[Notion Capture] Saved page:', page.url);
     return { ok: true, data: page };
   } catch (err) {
+    console.error('[Notion Capture] Save failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
@@ -161,23 +163,30 @@ if (chrome.contextMenus) {
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId !== 'save-page' && info.menuItemId !== 'save-selection') return;
 
+    console.log('[Notion Capture] Context menu clicked:', info.menuItemId);
     const selectionText = info.menuItemId === 'save-selection' ? info.selectionText : undefined;
     const result = await handleExtractAndSave(selectionText);
+    console.log('[Notion Capture] ExtractAndSave result:', result);
 
-    if (result.ok) {
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-        title: 'Saved to Notion',
-        message: 'Page saved successfully.',
-      });
-    } else {
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-        title: 'Save failed',
-        message: result.error ?? 'Unknown error',
-      });
+    const iconUrl = chrome.runtime.getURL('icon.png');
+    try {
+      if (result.ok) {
+        await chrome.notifications.create({
+          type: 'basic',
+          iconUrl,
+          title: 'Saved to Notion',
+          message: 'Page saved successfully.',
+        });
+      } else {
+        await chrome.notifications.create({
+          type: 'basic',
+          iconUrl,
+          title: 'Save failed',
+          message: result.error ?? 'Unknown error',
+        });
+      }
+    } catch (notifyErr) {
+      console.error('[Notion Capture] Notification failed:', notifyErr);
     }
   });
 }
